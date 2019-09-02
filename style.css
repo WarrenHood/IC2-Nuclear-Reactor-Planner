@@ -1,0 +1,121 @@
+body{
+    background: rgb(150,150,150);
+    font-family: 'Minecraft';
+    color:rgb(50,50,50);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none; 
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+#indicator{
+    pointer-events:none;
+}
+
+.panel{
+    border: 1px solid white;
+    float:top-left;
+    vertical-align: top;
+    height:fit-content;
+    width:fit-content;
+    background:#c6c6c6;
+    display:inline-block;
+    border-right: 4px solid #555555;
+    border-bottom: 4px solid #555555;
+}
+
+.grid{
+    height:fit-content;
+    width:fit-content;
+}
+
+.panel-title{
+    display:block;
+    text-align: center;
+    height:fit-content;
+    color: #404040;
+}
+
+.info-panel{
+    color:brown;
+}
+
+.panel-row{
+    height:fit-content;
+    width:100%;
+    display:block;
+}
+
+.panel-cell{
+    background: #8b8b8b;
+    box-sizing: border-box;
+    width:36px;
+    height:36px;
+    display: inline-block;
+    border-top: 2px solid #373737;
+    border-left: 2px solid #373737;
+    border-bottom: 2px solid white;
+    border-right: 2px solid white;
+}
+
+.fuel-uranium-single{
+    background-image: url("images/Grid_Uranium_Cell.png");
+}
+
+.fuel-uranium-dual{
+    background-image: url("images/Grid_Dual_Uranium_Cell.png");
+}
+
+.fuel-uranium-quad{
+    background-image: url("images/Grid_Quad_Uranium_Cell.png");
+}
+.fuel-mox-single{
+    background-image: url("images/Grid_Fuel_Rod_(MOX).png");
+}
+.fuel-mox-dual{
+    background-image: url("images/Grid_Dual_Fuel_Rod_(MOX).png");
+}
+.fuel-mox-quad{
+    background-image: url("images/Grid_Quad_Fuel_Rod_(MOX).png");
+}
+.heat-vent{
+    background-image: url("images/Grid_Heat_Vent.png");
+}
+.heat-vent-reactor{
+    background-image: url("images/Grid_Reactor_Heat_Vent.png");
+}
+.heat-vent-advanced{
+    background-image: url("images/Grid_Advanced_Heat_Vent.png");
+}
+.heat-vent-component{
+    background-image: url("images/Grid_Component_Heat_Vent.png");
+}
+.heat-vent-overclocked{
+    background-image: url("images/Grid_Overclocked_Heat_Vent.png");
+}
+.heat-exchanger{
+    background-image: url("images/Grid_Heat_Exchanger.png");
+}
+.heat-exchanger-advanced{
+    background-image: url("images/Grid_Advanced_Heat_Exchanger.png");
+}
+.heat-exchanger-reactor{
+    background-image: url("images/Grid_Core_Heat_Exchanger.png");
+}
+.heat-exchanger-component{
+    background-image: url("images/Grid_Component_Heat_Exchanger.png");
+}
+.coolant-cell-10k{
+    background-image: url("images/Grid_10k_Coolant_Cell.png");
+}
+.coolant-cell-30k{
+    background-image: url("images/Grid_30k_Coolant_Cell.png");
+}
+.coolant-cell-60k{
+    background-image: url("images/Grid_60k_Coolant_Cell.png");
+}

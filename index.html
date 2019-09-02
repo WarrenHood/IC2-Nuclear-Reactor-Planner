@@ -1,0 +1,173 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" media="screen" href="css/minecraft-webfont.css" />
+<link rel="stylesheet" href="style.css">
+<script src="ic2reactorplanner.js" type="text/javascript"></script>
+</head>
+
+<body>
+<center>
+    <h1>Warren's IC2 Reactor Planner</h1>
+</center>
+
+<div id="indicator" class="panel-cell" style="position:absolute;opacity:0.6"></div> 
+
+<div id="reactor-panel" class="panel">
+    
+    <div class="panel-title">Nuclear Reactor</div>
+    <div class="grid">
+        <div class="panel-row">
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+        </div>
+        <div class="panel-row">
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+        </div>
+        <div class="panel-row">
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+        </div>
+        <div class="panel-row">
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+        </div>
+        <div class="panel-row">
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+        </div>
+        <div class="panel-row">
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+            <div class="panel-cell"></div>
+        </div>
+        
+    </div>
+</div>
+<div class="panel toolpanel" style="border:0px;">
+    <div class="panel" style="float:top;display:block;">
+        <div class="panel-title">Fuels</div>
+        <div id="fuels-grid" class="grid">
+            <div class="panel-row">
+                <div class="panel-cell fuel-uranium-single"></div>
+                <div class="panel-cell fuel-uranium-dual"></div>
+                <div class="panel-cell fuel-uranium-quad"></div>
+            </div>
+            <div class="panel-row">
+                <div class="panel-cell fuel-mox-single"></div>
+                <div class="panel-cell fuel-mox-dual"></div>
+                <div class="panel-cell fuel-mox-quad"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" style="float:top;display:block;">
+        <div class="panel-title">Vents</div>
+        <div id="vents-grid" class="grid">
+            <div class="panel-row">
+                <div class="panel-cell heat-vent"></div>
+                <div class="panel-cell heat-vent-reactor"></div>
+                <div class="panel-cell heat-vent-advanced"></div>
+            </div>
+            <center>
+            <div class="panel-row">
+             <div class="panel-cell heat-vent-component"></div>
+             <div class="panel-cell heat-vent-overclocked"></div>
+            </div>
+            </center>
+        </div>
+    </div>
+    
+    <div class="panel" style="float:top;display:block;">
+        <div class="panel-title">Heat<br/> Exchangers</div>
+        <div id="heat-exchangers-grid" class="grid">
+            <div class="panel-row">
+                <div class="panel-cell heat-exchanger"></div>
+                <div class="panel-cell heat-exchanger-advanced"></div>
+                <div class="panel-cell heat-exchanger-reactor"></div>
+            </div>
+            <center>
+            <div class="panel-row">
+             <div class="panel-cell heat-exchanger-component"></div>
+            </div>
+            </center>
+        </div>
+    </div>
+</div>
+
+<div class="panel toolpanel" style="border:0px;">
+    <div class="panel" style="float:top;display:block;">
+        <div class="panel-title">Coolant Cells</div>
+        <div id="coolant-cells-grid" class="grid">
+            <center>
+            <div class="panel-row">
+                <div class="panel-cell coolant-cell-10k"></div>
+                <div class="panel-cell coolant-cell-30k"></div>
+                 <div class="panel-cell coolant-cell-60k"></div>
+            </div>
+            </center>
+        </div>
+    </div>
+    
+    <div class="panel" style="float:top;display:block;">
+        <div class="panel-title">Condensators</div>
+        <div id="condensators-grid" class="grid">
+        <center>
+            <div class="panel-row">
+                <div class="panel-cell coolant-cell-10k"></div>
+                <div class="panel-cell coolant-cell-30k"></div>
+            </div>
+            </center>
+        </div>
+    </div>
+</div>
+
+<div class="panel" id="info" style="float:top-right;display:inline-block; min-height:200px; max-height:300px;max-width:250px;">
+    <div class="panel-title" id="info-panel-title">Information</div>
+    <div class="info-panel" id="info-panel" style="overflow:auto;min-height:200px; max-height:250px;max-width:250px;"> </div>
+
+</div>
+
+</body>
+</html> 
