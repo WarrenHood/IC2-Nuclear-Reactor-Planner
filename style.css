@@ -119,3 +119,10 @@ body{
 .coolant-cell-60k{
     background-image: url("images/Grid_60k_Coolant_Cell.png");
 }
+.condensator-rsh{
+    background-image: url("images/Grid_RSH-Condensator.png");
+}
+.condensator-lzh{
+    background-image: url("images/Grid_LZH-Condensator.png");
+}
+

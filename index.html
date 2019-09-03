@@ -84,7 +84,12 @@
         </div>
         
     </div>
+    
+    Heat: <div id="heat-indicator" style="float:right;">0 HU (0%)</div><br/>
+    Power Generation: <div id="power-indicator" style="float:right;">0 EU/t</div><br/>
+    Time Elapsed: <div id="time-indicator" style="float:right;">0 Seconds</div>
 </div>
+
 <div class="panel toolpanel" style="border:0px;">
     <div class="panel" style="float:top;display:block;">
         <div class="panel-title">Fuels</div>
@@ -155,18 +160,27 @@
         <div id="condensators-grid" class="grid">
         <center>
             <div class="panel-row">
-                <div class="panel-cell coolant-cell-10k"></div>
-                <div class="panel-cell coolant-cell-30k"></div>
+                <div class="panel-cell condensator-rsh"></div>
+                <div class="panel-cell condensator-lzh"></div>
             </div>
             </center>
         </div>
     </div>
 </div>
 
-<div class="panel" id="info" style="float:top-right;display:inline-block; min-height:200px; max-height:300px;max-width:250px;">
+<div class="panel" id="info" style="float:top-right;display:inline-block; min-height:200px; max-height:300px;max-width:250px;visibility:hidden;">
     <div class="panel-title" id="info-panel-title">Information</div>
     <div class="info-panel" id="info-panel" style="overflow:auto;min-height:200px; max-height:250px;max-width:250px;"> </div>
 
+</div>
+
+<div class="panel" id="simulation-panel" style="float:bottom-left; display:block;">
+    <div class="panel-title">Simulation</div>
+    <button id="step1">Step 1 Tick</button>
+    <button id="normalsim">Normal Simulation</button>
+    <button id="fastsim">Fast Simulation</button>
+    <button id="stopsim">Stop Simulation</button>
+    <button id="resetsim">Reset Simulation</button>
 </div>
 
 </body>
