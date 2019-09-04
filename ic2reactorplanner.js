@@ -182,7 +182,7 @@ function initialiseElement(o){
                         this.heatAcceptors[i].heat += dividedHeat;
                         heatToProduce -= dividedHeat;
                     }
-                    dividedHeat = heatToProduce/(this.heatAcceptors.length-i);
+                    dividedHeat = heatToProduce/(this.heatAcceptors.length-i-1);
                 }
                 
                 reactorHullHeat += heatToProduce;
