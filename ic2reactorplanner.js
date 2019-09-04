@@ -162,6 +162,7 @@ function GridItem(x,y,element){
             if(e.button == 0){
                 this.className = currentGridModifier;
                 initialiseGrid();
+                showHeat();
             }
         };
         return o;
@@ -430,86 +431,53 @@ function initialiseElement(o){
                 
                 // Either keep heat, or distribute it, or take it
                 
-                var minCompHeatPerc = minHeatPercentage(this.heatAcceptors);
-                var maxCompHeatPerc = maxHeatPercentage(this.heatAcceptors);
-                var ownHeatPerc = heatPercent(this);
-                var reactorHeatPerc = reactorHullHeat/10000;
+                var avgPercentage = getAverageHeatPercent(reactorHullHeat, this, this.heatAcceptors);
                 
-                var componentHeatToTransfer = this.adjacentPullRate;
-                var reactorHeatToTransfer = this.reactorPullRate;
-                var somethingChanged = true;
+                // Transfer heat with hull
+                for(var i=0; i < this.reactorPullRate; i++){
+                    if(reactorHullHeat/10000 > avgPercentage){
+                        // Pull heat from hull
+                        reactorHullHeat--;
+                        this.heat++;
+                        if(this.heat >= this.maxHeat){
+                            this.broken = true;
+                            gridRequiresUpdate = true;
+                            break;
+                        }
+                    }
+                    else if(reactorHullHeat/10000  < avgPercentage && this.heat > 0){
+                        reactorHullHeat++;
+                        this.heat--;
+                    }
+                    else break;
+                }
                 
-                while (!this.broken && (reactorHeatToTransfer > 0 || componentHeatToTransfer > 0) && somethingChanged) {
-                    somethingChanged = false;
-                    
-                    if (reactorHeatPerc >= ownHeatPerc && reactorHeatPerc >= maxCompHeatPerc){
-                        // Reactor is the hottest of them all, Take from reactor
-                        // Take 1 heat from reactor if possible
-                            if (reactorHeatToTransfer > 0){
-                                reactorHeatToTransfer--;
-                                reactorHullHeat--;
-                                somethingChanged = true;
-                                this.heat++;
-                                if (this.heat >= this.maxHeat)
-                                    this.broken = true;
-                                continue;
-                            }
-                    }
-                    
-                    if(ownHeatPerc >= reactorHeatPerc && ownHeatPerc >= maxCompHeatPerc){
-                        // Self is hottest of them all, give heat to reactor or components
-                        
-                        if(maxCompHeatPerc > reactorHeatPerc){
-                            // The hottest component is hotter than the reactor, give to reactor
-                            // Give the reactor heat if possible
-                            if (reactorHeatToTransfer > 0){
-                                reactorHeatToTransfer--;
-                                reactorHullHeat++;
-                                this.heat--;
-                                somethingChanged = true;
-                            }
-                            
+                // Transfer heat with adjacent components
+                
+                for(var i=0; i<reactorGrid.length; i++){
+                    for(var j=0; j < this.adjacentPullRate; j++){
+                        if(heatPercent(reactorGrid[j]) > avgPercentage ){
+                            transferHeat(reactorGrid[j], this, 1);
                         }
-                        else{
-                            // The reactor is hotter than the hottest component, give to hottest component
-                            // Give the coolest component heat if possible
-                            if(componentHeatToTransfer > 0){
-                                for(var i=0; i<this.heatAcceptors.length; i++){
-                                    if(Math.abs(heatPercent(this.heatAcceptors[i]) - minCompHeatPerc) <= 1e-6 ){
-                                        transferHeat(this,this.heatAcceptors[i],1);
-                                        componentHeatToTransfer--;
-                                        somethingChanged = true;
-                                        break;
-                                    }
-                                }
-                            }
+                        else if(heatPercent(reactorGrid[j]) < avgPercentage){
+                            transferHeat(this, reactorGrid[j],1);
                         }
-            
+                        else break;
                     }
-                    if(maxCompHeatPerc >= reactorHeatPerc && maxCompHeatPerc >= ownHeatPerc){
-                        // The hottest component is hotter than reactor and self
-                        
-                        // Take some heat from hottest component if possible
-                        if(componentHeatToTransfer > 0){
-                            for(var i=0; i<this.heatAcceptors.length; i++){
-                                if(Math.abs(heatPercent(this.heatAcceptors[i]) - maxCompHeatPerc) <= 1e-6 ){
-                                    transferHeat(this,this.heatAcceptors[i],1);
-                                    componentHeatToTransfer--;
-                                    somethingChanged = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    
-                    minCompHeatPerc = minHeatPercentage(this.heatAcceptors);
-                    maxCompHeatPerc = maxHeatPercentage(this.heatAcceptors);
-                    ownHeatPerc = heatPercent(this);
-                    reactorHeatPerc = reactorHullHeat/10000;
                 }
 
             }
         }
+}
+
+function getAverageHeatPercent(hullHeat, heatExchanger, adjComponents){
+    var totalPercentage = 0;
+    totalPercentage += hullHeat/10000;
+    totalPercentage += heatPercent(heatExchanger);
+    for(var i=0; i<adjComponents.length; i++){
+        totalPercentage += heatPercent(adjComponents[i]);
+    }
+    return totalPercentage/(2+adjComponents.length);
 }
 
 function heatPercent(component){
