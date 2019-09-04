@@ -597,7 +597,10 @@ function showHeat(){
         if(reactorGrid[i].acceptsHeat){
             var red = 255*reactorGrid[i].heat/reactorGrid[i].maxHeat;
             var green = 255*(1-reactorGrid[i].heat/reactorGrid[i].maxHeat);
-            reactorGrid[i].element.style.backgroundColor = "rgba("+red+","+green+",0.1)";
+            if(!reactorGrid[i].broken)
+                reactorGrid[i].element.style.backgroundColor = "rgba("+red+","+green+",0.1)";
+            else 
+                reactorGrid[i].element.style.backgroundColor = "black";
         }
     }
 }
