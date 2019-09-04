@@ -15,6 +15,79 @@ var currentInterval = null;
 var gridRequiresUpdate = true;
 
 
+var componentCodes = {
+    "fuel-uranium-single" : "a",
+    "fuel-uranium-dual" : "b",
+    "fuel-uranium-quad" : "c",
+    "fuel-mox-single" : "d",
+    "fuel-mox-dual" : "e",
+    "fuel-mox-quad" : "f",
+    "heat-vent" : "g",
+    "heat-vent-reactor" : "h",
+    "heat-vent-advanced" : "i",
+    "heat-vent-component" : "j",
+    "heat-vent-overclocked" : "k",
+    "heat-exchanger" : "l",
+    "heat-exchanger-advanced" : "m",
+    "heat-exchanger-reactor" : "n",
+    "heat-exchanger-component" : "o",
+    "coolant-cell-10k" : "p",
+    "coolant-cell-30k" : "q",
+    "coolant-cell-60k" : "r",
+    "condensator-rsh" : "s",
+    "condensator-lzh" : "t",
+}
+
+var componentNames = {
+    "a" : "fuel-uranium-single",
+    "b" : "fuel-uranium-dual",
+    "c" : "fuel-uranium-quad",
+    "d" : "fuel-mox-single",
+    "e" : "fuel-mox-dual",
+    "f" : "fuel-mox-quad",
+    "g" : "heat-vent",
+    "h" : "heat-vent-reactor",
+    "i" : "heat-vent-advanced",
+    "j" : "heat-vent-component",
+    "k" : "heat-vent-overclocked",
+    "l" : "heat-exchanger",
+    "m" : "heat-exchanger-advanced",
+    "n" : "heat-exchanger-reactor",
+    "o" : "heat-exchanger-component",
+    "p" : "coolant-cell-10k",
+    "q" : "coolant-cell-30k",
+    "r" : "coolant-cell-60k",
+    "s" : "condensator-rsh",
+    "t" : "condensator-lzh",
+    "0" : ""
+}
+
+function getReactorCode(){
+    document.getElementById("wrcode").value = _getReactorCode();
+}
+
+function loadReactorCode(){
+    var code = document.getElementById("wrcode").value;
+    if(code.length != 54) return
+    _loadReactorCode(code);
+}
+
+function _getReactorCode(){
+    var code = "";
+    for (var i=0; i<reactorGrid.length; i++)
+        if(componentCodes[reactorGrid[i].name])
+            code += componentCodes[reactorGrid[i].name];
+        else code += "0"
+    return code;
+}
+
+function _loadReactorCode(code){
+    for(var i=0; i<reactorGrid.length; i++)
+        reactorGrid[i].element.className = "panel-cell " + componentNames[code[i]];
+    
+    initialiseGrid();
+}
+
 var descriptions = {
     "fuel-uranium-single" : {
         "title": "Uranium Rod",
@@ -101,6 +174,7 @@ function initialiseGrid(){
     for(var i=0; i<reactorGrid.length; i++){
         reactorGrid[i].update();
     }
+    getReactorCode();
 }
 
 function initialiseElement(o){
@@ -636,6 +710,10 @@ window.onload = function(){
             reactorGrid[i].element.style.backgroundColor = "#8b8b8b";
         }
     };
+    
+    document.getElementById("wrcode").onchange = loadReactorCode;
+    document.getElementById("wrcode").onkeyup = loadReactorCode;
+    document.getElementById("wrcode").onblur = getReactorCode;
     var fuelRows = document.getElementById("reactor-panel").getElementsByClassName("panel-row");
     var toolPanels = document.getElementsByClassName("toolpanel");
     
