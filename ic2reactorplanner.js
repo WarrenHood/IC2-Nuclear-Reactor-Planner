@@ -476,13 +476,18 @@ function initialiseElement(o){
 }
 
 function getAverageHeatPercent(hullHeat, heatExchanger, adjComponents){
-    var totalPercentage = 0;
-    totalPercentage += hullHeat/10000;
-    totalPercentage += heatPercent(heatExchanger);
+    var totalHeat = 0;
+    totalHeat += hullHeat;
+    totalHeat += heatExchanger.heat;
+    totalCap = 10000;
+    totalCap += heatExchanger.maxHeat;
+    
     for(var i=0; i<adjComponents.length; i++){
-        totalPercentage += heatPercent(adjComponents[i]);
+        totalHeat += adjComponents[i].heat;
+        totalCap += adjComponents[i].maxHeat;
     }
-    return totalPercentage/(2+adjComponents.length);
+    
+    return totalHeat/totalCap;
 }
 
 function heatPercent(component){
