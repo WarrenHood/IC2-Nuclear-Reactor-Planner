@@ -151,13 +151,15 @@ function initialiseElement(o){
                 // Clamp Heat Generation rate
                 if(this.heatRate < 0) this.heatRate = 0;
                 
-                // Keep track of available sources for heat transfer
+                // Keep track of available sources for heat transfer (Vents only... Exchangers will pull at their own rate)
+                // TODO: Confirm that exchangers shouldn't be given heat like the vents...
+                // Nevermind... I think uranium cells will pump heat straight into this
                 this.heatAcceptors = [];
                 
-                if (this.x > 0 && getReactorComponent(this.x-1,this.y) && getReactorComponent(this.x-1,this.y).isVent && getReactorComponent(this.x-1,this.y).acceptsHeat && !getReactorComponent(this.x-1,this.y).broken) this.heatAcceptors.push(getReactorComponent(this.x-1,this.y));
-                if (this.x < 8 && getReactorComponent(this.x+1,this.y) && getReactorComponent(this.x+1,this.y).isVent && getReactorComponent(this.x+1,this.y).acceptsHeat && !getReactorComponent(this.x+1,this.y).broken) this.heatAcceptors.push(getReactorComponent(this.x+1,this.y));
-                if (this.y > 0 && getReactorComponent(this.x,this.y-1) && getReactorComponent(this.x,this.y-1).isVent && getReactorComponent(this.x,this.y-1).acceptsHeat && !getReactorComponent(this.x,this.y-1).broken) this.heatAcceptors.push(getReactorComponent(this.x,this.y-1));
-                if (this.y < 8 && getReactorComponent(this.x,this.y+1) && getReactorComponent(this.x,this.y+1).isVent && getReactorComponent(this.x,this.y+1).acceptsHeat && !getReactorComponent(this.x,this.y+1).broken) this.heatAcceptors.push(getReactorComponent(this.x,this.y+1));
+                if (this.x > 0 && getReactorComponent(this.x-1,this.y) && getReactorComponent(this.x-1,this.y).acceptsHeat && !getReactorComponent(this.x-1,this.y).broken) this.heatAcceptors.push(getReactorComponent(this.x-1,this.y));
+                if (this.x < 8 && getReactorComponent(this.x+1,this.y) && getReactorComponent(this.x+1,this.y).acceptsHeat && !getReactorComponent(this.x+1,this.y).broken) this.heatAcceptors.push(getReactorComponent(this.x+1,this.y));
+                if (this.y > 0 && getReactorComponent(this.x,this.y-1) && getReactorComponent(this.x,this.y-1).acceptsHeat && !getReactorComponent(this.x,this.y-1).broken) this.heatAcceptors.push(getReactorComponent(this.x,this.y-1));
+                if (this.y < 8 && getReactorComponent(this.x,this.y+1) && getReactorComponent(this.x,this.y+1).acceptsHeat && !getReactorComponent(this.x,this.y+1).broken) this.heatAcceptors.push(getReactorComponent(this.x,this.y+1));
                 
             }
         
@@ -166,7 +168,7 @@ function initialiseElement(o){
             o.doHeatGeneration = function(){
                 if(!this.isUranium) return;
                 var heatToProduce = this.heatRate;
-                var dividedHeat = this.heatRate/this.heatAcceptors.length;
+                var dividedHeat = heatToProduce/this.heatAcceptors.length;
                 
                 for (var i=0; i<this.heatAcceptors.length; i++){
                     var remainingDurability = this.heatAcceptors[i].maxHeat - this.heatAcceptors[i].heat;
@@ -180,6 +182,7 @@ function initialiseElement(o){
                         this.heatAcceptors[i].heat += dividedHeat;
                         heatToProduce -= dividedHeat;
                     }
+                    dividedHeat = heatToProduce/(this.heatAcceptors.length-i);
                 }
                 
                 reactorHullHeat += heatToProduce;
@@ -212,7 +215,10 @@ function initialiseElement(o){
             o.dissipationRate = 20;
             o.reactorPullRate = 36;
         }
-        else o.isVent = false;
+        else {
+            o.isVent = false;
+            o.acceptsHeat = false;
+        }
         
         if(o.isVent) {
             
@@ -275,6 +281,235 @@ function initialiseElement(o){
                 if (this.heat < 0) this.heat = 0; 
             }
         }
+        
+        // Handle heat exchangers
+        
+        o.isHeatExchanger = true;
+        o.adjacentPullRate = 0;
+        o.reactorPullRate = 0;
+        
+        if (o.name == "heat-exchanger"){
+            o.acceptsHeat = true;
+            o.adjacentPullRate = 12;
+            o.reactorPullRate = 4;
+            o.maxHeat = 2500;
+        }
+        else if(o.name == "heat-exchanger-advanced"){
+            o.acceptsHeat = true;
+            o.adjacentPullRate = 24;
+            o.reactorPullRate = 8;
+            o.maxHeat = 5000;
+        }
+        else if(o.name == "heat-exchanger-reactor"){
+            o.acceptsHeat = true;
+            o.adjacentPullRate = 0;
+            o.reactorPullRate = 72;
+            o.maxHeat = 2500;
+        }
+        else if(o.name == "heat-exchanger-component"){
+            o.acceptsHeat = true;
+            o.adjacentPullRate = 36;
+            o.reactorPullRate = 0;
+            o.maxHeat = 5000;
+        }
+        else {
+            o.isHeatExchanger = false;
+        }
+        
+        if (o.isHeatExchanger){
+            o.heat = 0;
+            o.update = function(){
+                
+                // Look for available sources of heat which are connected
+                
+                this.heatAcceptors = [];
+                
+                if (this.x > 0 && getReactorComponent(this.x-1,this.y) && getReactorComponent(this.x-1,this.y).acceptsHeat && !getReactorComponent(this.x-1,this.y).broken) this.heatAcceptors.push(getReactorComponent(this.x-1,this.y));
+                if (this.x < 8 && getReactorComponent(this.x+1,this.y) && getReactorComponent(this.x+1,this.y).acceptsHeat && !getReactorComponent(this.x+1,this.y).broken) this.heatAcceptors.push(getReactorComponent(this.x+1,this.y));
+                if (this.y > 0 && getReactorComponent(this.x,this.y-1) && getReactorComponent(this.x,this.y-1).acceptsHeat && !getReactorComponent(this.x,this.y-1).broken) this.heatAcceptors.push(getReactorComponent(this.x,this.y-1));
+                if (this.y < 8 && getReactorComponent(this.x,this.y+1) && getReactorComponent(this.x,this.y+1).acceptsHeat && !getReactorComponent(this.x,this.y+1).broken) this.heatAcceptors.push(getReactorComponent(this.x,this.y+1));
+                
+                
+                // Check for nearby vents that will dissipate this heat
+                this.heatDissipationRate = 0;
+                
+                if (this.x > 0 && getReactorComponent(this.x-1,this.y) && getReactorComponent(this.x-1,this.y).name == "heat-vent-component" ) this.heatDissipationRate += 4;
+                if (this.x < 8 && getReactorComponent(this.x+1,this.y) && getReactorComponent(this.x+1,this.y).name == "heat-vent-component" ) this.heatDissipationRate += 4;
+                if (this.y > 0 && getReactorComponent(this.x,this.y-1) && getReactorComponent(this.x,this.y-1).name == "heat-vent-component" ) this.heatDissipationRate += 4;
+                if (this.y < 8 && getReactorComponent(this.x,this.y+1) && getReactorComponent(this.x,this.y+1).name == "heat-vent-component" ) this.heatDissipationRate += 4;
+                
+            }
+            
+            o.doHeatDissipation = function(){
+                // Broken heat exchangers cannot have heat dissipated
+                if (this.broken) return;
+                
+                
+                // Dissipate this heat if connected to a vent
+                this.heat -= this.heatDissipationRate;
+                
+                // Clamp this heat
+                if (this.heat < 0) this.heat = 0;
+            }
+            
+            o.doHeatExchange = function(){
+                // Broken heat exchangers cannot exchange heat with things
+                if(this.broken) return;
+                
+                
+                // Pull heat from reactor hull
+                var remainingDurability = this.maxHeat - this.heat;
+                
+                
+                if (this.reactorPullRate > reactorHullHeat){
+                    // If we can pull more than the hull has
+                    
+                    if (remainingDurability <= reactorHullHeat){
+                        // This component will break since we can't pull all remaining heat
+                        reactorHullHeat -= remainingDurability;
+                        this.heat = this.maxHeat;
+                        this.broken = true;
+                        gridRequiresUpdate = true;
+                    }
+                    else{
+                        // We can pull all remaining hull heat without breaking
+                        this.heat += reactorHullHeat;
+                        reactorHullHeat = 0;
+                    }
+                }
+                else {
+                    // If the hull has more heat than we can pull
+                    
+                    if(remainingDurability <= this.reactorPullRate){
+                        // This component will break
+                        reactorHullHeat -= remainingDurability;
+                        this.heat = this.maxHeat;
+                        this.broken = true;
+                        gridRequiresUpdate = true;
+                    }
+                    else {
+                        // The component can pull its reactorPullRate from the hull without breaking
+                        reactorHullHeat -= this.reactorPullRate;
+                        this.heat += this.reactorPullRate;
+                    }
+                }
+                
+                // Pull heat from hottest components
+                
+                for(var i=0; i < this.adjacentPullRate; i++){
+                    var currentHottestPerc = maxHeatPercentage(this.heatAcceptors);
+                    for(var j=0; j<this.heatAcceptors.length; j++)
+                        if(this.heatAcceptors[j].heat == currentHottestPerc){
+                            transferHeat(this.heatAcceptors[i],this,1);
+                            break;
+                        }
+                }
+                
+                // Either keep heat, or distribute
+                
+                var minCompHeatPerc = minHeatPercentage(this.heatAcceptors);
+                var maxCompHeatPerc = maxHeatPercentage(this.heatAcceptors);
+                var ownHeatPerc = heatPercent(this);
+                var reactorHeatPerc = reactorHullHeat/10000;
+                
+                // Consider adjacent components
+                
+                for(var i=0; i<this.adjacentPullRate; i++){
+                    // If hull is hotter than anything else, give as much heat to coolest components as possible (or keep to self if self is coolest)
+                    if(minCompHeatPerc < reactorHeatPerc){
+                        
+                        // If self is cooler than the hottest component, keep heat to self
+                        if(ownHeatPerc < maxCompHeatPerc){
+                            // Keep heat to self since it's colder
+                        }
+                        
+                        else{
+                            // There are components which are cooler than this heat exchanger... Give the coldest some heat
+                            for(var j=0; j<this.heatAcceptors.length; j++){
+                                if(this.heatAcceptors[j].heat == minCompHeatPerc){
+                                    transferHeat(this, this.heatAcceptors[j],1);
+                                    break;
+                                }
+                            }
+                            
+                        }
+                    }
+                    else{
+                        // Keep it to self since self is coldest of the components... Maybe the hull needs it
+                    }
+                ownHeatPerc = heatPercent(this);
+                minCompHeatPerc = minHeatPercentage(this.heatAcceptors);
+                }
+                
+                // Consider the hull
+                
+                for(var i=0; i < this.reactorPullRate; i++){
+                    
+                    // If we are hotter then the hull give it heat
+                    if (ownHeatPerc > reactorHeatPerc){
+                        reactorHullHeat++;
+                        this.heat--;
+                    }
+                    else{
+                        // Otherwise it is pointless carrying on
+                        break;
+                    }
+                    
+                    ownHeatPerc = heatPercent(this);
+                    reactorHeatPerc = reactorHullHeat/10000;
+                }
+            }
+        }
+}
+
+function heatPercent(component){
+    if(!component || !component.heat) return null;
+    return component.heat/component.maxHeat;
+}
+
+function minHeatPercentage(components){
+    if(components.length == 0) return null;
+    var minimum = heatPercent(components[0]);
+    
+    for(var i=0; i<components.length; i++){
+        if(heatPercent(components[i]) < minimum) minimum = heatPercent(components[i]);
+    }
+    
+    return minimum;
+}
+
+function maxHeatPercentage(components){
+    if(components.length == 0) return null;
+    var maximum = heatPercent(components[0]);
+    
+    for(var i=0; i<components.length; i++){
+        if(heatPercent(components[i]) > maximum) maximum = heatPercent(components[i]);
+    }
+    
+    return maximum;
+}
+
+function transferHeat(fromComponent, toComponent, amount){
+    amount = amount || 1;
+    //Don't transfer more heat than possible
+    if(fromComponent.heat < amount){
+        amount = fromComponent.heat;
+    }
+    
+    var remainingDurability = toComponent.maxHeat - toComponent.heat;
+    // If this amount of heat will break the component
+    if(remainingDurability <= amount){
+        fromComponent.heat -= remainingDurability;
+        toComponent.heat = toComponent.maxHeat;
+        toComponent.broken = true;
+        gridRequiresUpdate = true;
+    }
+    else{
+        // Otherwise do a normal transfer
+        fromComponent.heat -= amount;
+        toComponent.heat += amount;
+    }
+    
 }
 
 function getReactorComponent(x,y){
@@ -287,7 +522,7 @@ function getReactorComponent(x,y){
 
 function showHeat(){
     for(var i=0; i<reactorGrid.length; i++){
-        if(reactorGrid[i].isVent){
+        if(reactorGrid[i].acceptsHeat){
             var red = 255*reactorGrid[i].heat/reactorGrid[i].maxHeat;
             var green = 255*(1-reactorGrid[i].heat/reactorGrid[i].maxHeat);
             reactorGrid[i].element.style.backgroundColor = "rgba("+red+","+green+",0.1)";
@@ -320,7 +555,7 @@ function doReactorTick(){
     
     // Generate Heat
     
-    for(var i=0; i<reactorGrid.length; i++){
+    for (var i=0; i<reactorGrid.length; i++){
         if (reactorGrid[i].isUranium) reactorGrid[i].doHeatGeneration();
     }
     
@@ -330,12 +565,17 @@ function doReactorTick(){
         if (reactorGrid[i].isVent) reactorGrid[i].pullFromReactor();
     }
     
-    // Dissipate heat
-    for(var i=0; i<reactorGrid.length; i++){
-        if (reactorGrid[i].isVent) reactorGrid[i].doHeatDissipation();
+    // Do some heat exchange
+    for (var i=0; i<reactorGrid.length; i++){
+        if(reactorGrid[i].isHeatExchanger) reactorGrid[i].doHeatExchange();
     }
     
-    document.getElementById("heat-indicator").innerHTML = reactorHullHeat + " HU (" +reactorHullHeat/100 + "%)";
+    // Dissipate heat
+    for (var i=0; i<reactorGrid.length; i++){
+        if (reactorGrid[i].isVent || reactorGrid[i].isHeatExchanger) reactorGrid[i].doHeatDissipation();
+    }
+    
+    document.getElementById("heat-indicator").innerHTML = Math.round(reactorHullHeat,5) + " HU (" +Math.round(reactorHullHeat/100,5) + "%)";
     document.getElementById("power-indicator").innerHTML = calculateTotalEU() + " EU/t";
     simulationTime += 1;
     document.getElementById("time-indicator").innerHTML = simulationTime + " seconds";
