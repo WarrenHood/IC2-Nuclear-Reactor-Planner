@@ -177,6 +177,12 @@ function initialiseGrid(){
     getReactorCode();
 }
 
+function clearGrid(){
+    for(var i=0; i<reactorGrid.length; i++)
+        reactorGrid[i].element.className = "panel-cell";
+    initialiseGrid();
+}
+
 function initialiseElement(o){
     // Element specific stuff
         
@@ -644,6 +650,8 @@ window.onload = function(){
             mouseIsDown = false;
         }
     }
+    
+    document.getElementById("cleargrid").onclick = clearGrid;
     
     document.getElementById("step1").onclick = doReactorTick;
     document.getElementById("normalsim").onclick = function(){
