@@ -460,7 +460,7 @@ function initialiseElement(o){
                         // Take some heat from hottest component if possible
                         if(componentHeatToTransfer > 0){
                             for(var i=0; i<this.heatAcceptors.length; i++){
-                                if(Math.abs(heatPercent(this.heatAcceptors[i]) - minCompHeatPerc) <= 1e-6 ){
+                                if(Math.abs(heatPercent(this.heatAcceptors[i]) - maxCompHeatPerc) <= 1e-6 ){
                                     transferHeat(this,this.heatAcceptors[i],1);
                                     componentHeatToTransfer--;
                                     somethingChanged = true;
@@ -502,51 +502,7 @@ function initialiseElement(o){
                     ownHeatPerc = heatPercent(this);
                     reactorHeatPerc = reactorHullHeat/10000;
                 }
-                
-                
-                /*
-                // Consider adjacent components
-                
-                for(var i=0; i<this.adjacentPullRate; i++){
-                    // If hull is hotter than hottest component, give as much heat to coolest components as possible (or keep to self if self is coolest)
-                    if(reactorHeatPerc >= minCompHeatPerc){
-                        
-                        if(ownHeatPerc > minCompHeatPerc){
-                            // There are components which are cooler than this heat exchanger... Give the coldest some heat
-                            for(var j=0; j<this.heatAcceptors.length; j++){
-                                if(this.heatAcceptors[j].heat == minCompHeatPerc){
-                                    transferHeat(this, this.heatAcceptors[j],1);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    else{
-                        // Keep it to self since self is coldest of the components... Maybe the hull needs it
-                    }
-                ownHeatPerc = heatPercent(this);
-                minCompHeatPerc = minHeatPercentage(this.heatAcceptors);
-                }
-                
-                // Consider the hull
-                
-                for(var i=0; i < this.reactorPullRate; i++){
-                    
-                    // If we are hotter then the hull give it heat
-                    if (ownHeatPerc > reactorHeatPerc){
-                        reactorHullHeat++;
-                        this.heat--;
-                    }
-                    else{
-                        // Otherwise it is pointless carrying on
-                        break;
-                    }
-                    
-                    ownHeatPerc = heatPercent(this);
-                    reactorHeatPerc = reactorHullHeat/10000;
-                }*/
-                
-                
+
             }
         }
 }
