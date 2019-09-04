@@ -563,11 +563,7 @@ function transferHeat(fromComponent, toComponent, amount){
 }
 
 function getReactorComponent(x,y){
-    for(var i=0; i<reactorGrid.length; i++){
-        if(reactorGrid[i].x == x && reactorGrid[i].y == y)
-            return reactorGrid[i];
-    }
-    return null;
+    return reactorGrid[x + 9*y]
 }
 
 function showHeat(){
@@ -689,7 +685,7 @@ window.onload = function(){
     };
     document.getElementById("fastsim").onclick = function(){
         if(!currentInterval)
-            currentInterval = setInterval(doReactorTick, 1);
+            currentInterval = setInterval(doReactorTick, 1e-1);
     };
     document.getElementById("stopsim").onclick = function(){
         if(currentInterval)
