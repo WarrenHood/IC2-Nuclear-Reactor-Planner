@@ -53,6 +53,8 @@ body{
 
 .panel-cell{
     background: #8b8b8b;
+    background-repeat: no-repeat;
+    background-size: auto;
     box-sizing: border-box;
     width:36px;
     height:36px;
