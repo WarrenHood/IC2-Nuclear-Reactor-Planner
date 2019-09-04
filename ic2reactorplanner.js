@@ -162,7 +162,6 @@ function GridItem(x,y,element){
             if(e.button == 0){
                 this.className = currentGridModifier;
                 initialiseGrid();
-                showHeat();
             }
         };
         return o;
