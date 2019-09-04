@@ -285,8 +285,6 @@ function initialiseElement(o){
         // Handle heat exchangers
         
         o.isHeatExchanger = true;
-        o.adjacentPullRate = 0;
-        o.reactorPullRate = 0;
         
         if (o.name == "heat-exchanger"){
             o.acceptsHeat = true;
@@ -399,8 +397,8 @@ function initialiseElement(o){
                 for(var i=0; i < this.adjacentPullRate; i++){
                     var currentHottestPerc = maxHeatPercentage(this.heatAcceptors);
                     for(var j=0; j<this.heatAcceptors.length; j++)
-                        if(this.heatAcceptors[j].heat == currentHottestPerc){
-                            transferHeat(this.heatAcceptors[i],this,1);
+                        if(Math.abs(heatPercent(this.heatAcceptors[j]) - currentHottestPerc) <= 1e-6){
+                            transferHeat(this.heatAcceptors[j],this,1);
                             break;
                         }
                 }
@@ -412,18 +410,91 @@ function initialiseElement(o){
                 var ownHeatPerc = heatPercent(this);
                 var reactorHeatPerc = reactorHullHeat/10000;
                 
+                var componentHeatToTransfer = this.adjacentPullRate;
+                var reactorHeatToTransfer = this.reactorPullRate;
+                var somethingChanged = true;
+                
+                while (somethingChanged && this.heat > 0) {
+                    somethingChanged = false;
+                    
+                    if (reactorHeatPerc >= ownHeatPerc && reactorHeatPerc >= maxCompHeatPerc){
+                        // Reactor is the hottest of them all, don't give heat to reactor
+                        
+                        if(ownHeatPerc > minCompHeatPerc){
+                            // There is a cooler component than self, give the coolest component heat if possible
+                            if(componentHeatToTransfer == 0) continue;
+                            for(var i=0; i<this.heatAcceptors.length; i++){
+                                if(Math.abs(heatPercent(this.heatAcceptors[i]) - minCompHeatPerc) <= 1e-6 ){
+                                    transferHeat(this,this.heatAcceptors[i],1);
+                                    componentHeatToTransfer--;
+                                    somethingChanged = true;
+                                    break;
+                                }
+                            }
+                        }
+                        else{
+                            // Everything else is hotter than self, Keep ALL heat to self
+                        }
+                    }
+                    
+                    else if(ownHeatPerc >= reactorHeatPerc && ownHeatPerc >= maxCompHeatPerc){
+                        // Self is hottest of them all, give heat to reactor and all components
+                        
+                        if(maxCompHeatPerc > reactorHeatPerc){
+                            // The hottest component is hotter than the reactor
+                            // Give the reactor heat if possible
+                            if (reactorHeatToTransfer == 0) continue;
+                            reactorHeatToTransfer--;
+                            reactorHullHeat++;
+                            this.heat--;
+                            somethingChanged = true;
+                            
+                        }
+                        else{
+                            // The reactor is hotter than the hottest component
+                            // Give the coolest component heat if possible
+                            if(componentHeatToTransfer == 0) continue;
+                            for(var i=0; i<this.heatAcceptors.length; i++){
+                                if(Math.abs(heatPercent(this.heatAcceptors[i]) - minCompHeatPerc) <= 1e-6 ){
+                                    transferHeat(this,this.heatAcceptors[i],1);
+                                    componentHeatToTransfer--;
+                                    somethingChanged = true;
+                                    break;
+                                }
+                            }
+                            
+                        }
+            
+                    }
+                    else if(maxCompHeatPerc >= reactorHeatPerc && maxCompHeatPerc >= ownHeatPerc){
+                        // The hottest component is hotter than reactor and self
+                        
+                        if(ownHeatPerc > reactorHeatPerc){
+                            // Self is hotter than the reactor
+                            // Give the reactor heat if possible
+                            if (reactorHeatToTransfer == 0) continue;
+                            reactorHeatToTransfer--;
+                            reactorHullHeat++;
+                            this.heat--;
+                            somethingChanged = true;
+                        }
+                    }
+                    
+                    minCompHeatPerc = minHeatPercentage(this.heatAcceptors);
+                    maxCompHeatPerc = maxHeatPercentage(this.heatAcceptors);
+                    ownHeatPerc = heatPercent(this);
+                    reactorHeatPerc = reactorHullHeat/10000;
+                }
+                
+                
+                /*
                 // Consider adjacent components
                 
                 for(var i=0; i<this.adjacentPullRate; i++){
-                    // If hull is hotter than anything else, give as much heat to coolest components as possible (or keep to self if self is coolest)
-                    if(minCompHeatPerc < reactorHeatPerc){
+                    // If hull is hotter than hottest component, give as much heat to coolest components as possible (or keep to self if self is coolest)
+                    if(reactorHeatPerc >= minCompHeatPerc){
                         
-                        // If self is cooler than the hottest component, keep heat to self
-                        if(ownHeatPerc < maxCompHeatPerc){
-                            // Keep heat to self since it's colder
-                        }
-                        
-                        else{
+                        if(ownHeatPerc > minCompHeatPerc){
                             // There are components which are cooler than this heat exchanger... Give the coldest some heat
                             for(var j=0; j<this.heatAcceptors.length; j++){
                                 if(this.heatAcceptors[j].heat == minCompHeatPerc){
@@ -431,7 +502,6 @@ function initialiseElement(o){
                                     break;
                                 }
                             }
-                            
                         }
                     }
                     else{
@@ -457,7 +527,9 @@ function initialiseElement(o){
                     
                     ownHeatPerc = heatPercent(this);
                     reactorHeatPerc = reactorHullHeat/10000;
-                }
+                }*/
+                
+                
             }
         }
 }
@@ -636,7 +708,7 @@ window.onload = function(){
     };
     document.getElementById("fastsim").onclick = function(){
         if(!currentInterval)
-            currentInterval = setInterval(doReactorTick, 10);
+            currentInterval = setInterval(doReactorTick, 1);
     };
     document.getElementById("stopsim").onclick = function(){
         if(currentInterval)
