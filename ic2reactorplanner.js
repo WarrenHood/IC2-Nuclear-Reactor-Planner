@@ -365,16 +365,12 @@ function initialiseElement(o){
                 var reactorHeatToTransfer = this.reactorPullRate;
                 var somethingChanged = true;
                 
-                while (somethingChanged && !this.broken) {
+                while (!this.broken && (reactorHeatToTransfer > 0 || componentHeatToTransfer > 0) && somethingChanged) {
                     somethingChanged = false;
                     
                     if (reactorHeatPerc >= ownHeatPerc && reactorHeatPerc >= maxCompHeatPerc){
                         // Reactor is the hottest of them all, Take from reactor
-                        
-                        if(ownHeatPerc > minCompHeatPerc){
-                            // reactor hotter than self, self hotter than coolest... Take from reactor and give to coolest
-                            
-                            // Take 1 heat from reactor if possible
+                        // Take 1 heat from reactor if possible
                             if (reactorHeatToTransfer > 0){
                                 reactorHeatToTransfer--;
                                 reactorHullHeat--;
@@ -382,9 +378,27 @@ function initialiseElement(o){
                                 this.heat++;
                                 if (this.heat >= this.maxHeat)
                                     this.broken = true;
+                                continue;
+                            }
+                    }
+                    
+                    if(ownHeatPerc >= reactorHeatPerc && ownHeatPerc >= maxCompHeatPerc){
+                        // Self is hottest of them all, give heat to reactor or components
+                        
+                        if(maxCompHeatPerc > reactorHeatPerc){
+                            // The hottest component is hotter than the reactor, give to reactor
+                            // Give the reactor heat if possible
+                            if (reactorHeatToTransfer > 0){
+                                reactorHeatToTransfer--;
+                                reactorHullHeat++;
+                                this.heat--;
+                                somethingChanged = true;
                             }
                             
-                            // Give 1 heat to coolest component if possible
+                        }
+                        else{
+                            // The reactor is hotter than the hottest component, give to hottest component
+                            // Give the coolest component heat if possible
                             if(componentHeatToTransfer > 0){
                                 for(var i=0; i<this.heatAcceptors.length; i++){
                                     if(Math.abs(heatPercent(this.heatAcceptors[i]) - minCompHeatPerc) <= 1e-6 ){
@@ -396,65 +410,9 @@ function initialiseElement(o){
                                 }
                             }
                         }
-                        else{
-                            // Everything else is hotter than self
-                            
-                            // Take 1 heat from reactor if possible
-                            if (reactorHeatToTransfer > 0){
-                                reactorHeatToTransfer--;
-                                reactorHullHeat--;
-                                somethingChanged = true;
-                                this.heat++;
-                                if (this.heat >= this.maxHeat)
-                                    this.broken = true;
-                            }
-                            
-                            // Take 1 heat from hottest component if possible
-                            if (componentHeatToTransfer > 0){
-                                for(var i=0; i<this.heatAcceptors.length; i++){
-                                    if(Math.abs(heatPercent(this.heatAcceptors[i]) - maxCompHeatPerc) <= 1e-6 ){
-                                        transferHeat(this.heatAcceptors[i],this,1);
-                                        componentHeatToTransfer--;
-                                        somethingChanged = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        
-                    }
-                    
-                    else if(ownHeatPerc >= reactorHeatPerc && ownHeatPerc >= maxCompHeatPerc){
-                        // Self is hottest of them all, give heat to reactor and all components
-                        
-                        if(maxCompHeatPerc > reactorHeatPerc){
-                            // The hottest component is hotter than the reactor, give to reactor
-                            
-                            // Give the reactor heat if possible
-                            if (reactorHeatToTransfer == 0) continue;
-                            reactorHeatToTransfer--;
-                            reactorHullHeat++;
-                            this.heat--;
-                            somethingChanged = true;
-                            
-                        }
-                        else{
-                            // The reactor is hotter than the hottest component, give to hottest component
-                            // Give the coolest component heat if possible
-                            if(componentHeatToTransfer == 0) continue;
-                            for(var i=0; i<this.heatAcceptors.length; i++){
-                                if(Math.abs(heatPercent(this.heatAcceptors[i]) - minCompHeatPerc) <= 1e-6 ){
-                                    transferHeat(this,this.heatAcceptors[i],1);
-                                    componentHeatToTransfer--;
-                                    somethingChanged = true;
-                                    break;
-                                }
-                            }
-                            
-                        }
             
                     }
-                    else if(maxCompHeatPerc >= reactorHeatPerc && maxCompHeatPerc >= ownHeatPerc){
+                    if(maxCompHeatPerc >= reactorHeatPerc && maxCompHeatPerc >= ownHeatPerc){
                         // The hottest component is hotter than reactor and self
                         
                         // Take some heat from hottest component if possible
@@ -468,33 +426,6 @@ function initialiseElement(o){
                                 }
                             }
                         }
-                        ownHeatPerc = heatPercent(this);
-                        
-                        if(ownHeatPerc > reactorHeatPerc){
-                            // Self is hotter than the reactor, take from self and give to reactor
-                            // Give the reactor heat if possible
-                            if (reactorHeatToTransfer == 0) continue;
-                            reactorHeatToTransfer--;
-                            reactorHullHeat++;
-                            this.heat--;
-                            somethingChanged = true;
-                        }
-                        else{
-                            // Reactor is hotter than self, take from reactor
-                            
-                             // Take 1 heat from reactor if possible
-                            if (reactorHeatToTransfer > 0){
-                                reactorHeatToTransfer--;
-                                reactorHullHeat--;
-                                somethingChanged = true;
-                                this.heat++;
-                                if (this.heat >= this.maxHeat)
-                                    this.broken = true;
-                            }
-                            
-                        }
-                        
-                        
                     }
                     
                     minCompHeatPerc = minHeatPercentage(this.heatAcceptors);
