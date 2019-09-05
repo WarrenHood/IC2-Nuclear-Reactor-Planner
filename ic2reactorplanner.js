@@ -153,6 +153,7 @@ function GridItem(x,y,element){
         o.element.onmouseover = function(e){
             if(mouseIsDown){
                 this.className = currentGridModifier;
+                this.style.backgroundColor = "#8b8b8b";
                 initialiseGrid();
             }
         };
@@ -161,6 +162,7 @@ function GridItem(x,y,element){
             e = e || event;
             if(e.button == 0){
                 this.className = currentGridModifier;
+                this.style.backgroundColor = "#8b8b8b";
                 initialiseGrid();
             }
         };
@@ -168,18 +170,26 @@ function GridItem(x,y,element){
 }
 
 function initialiseGrid(){
+    reactorHullHeat = 0;
+    simulationTime = 0;
+    
     for(var i=0; i<reactorGrid.length; i++){
         initialiseElement(reactorGrid[i]);
     }
     for(var i=0; i<reactorGrid.length; i++){
         reactorGrid[i].update();
     }
+    document.getElementById("heat-indicator").innerHTML = Math.round(reactorHullHeat,5) + " HU (" +Math.round(reactorHullHeat/100,5) + "%)";
+    document.getElementById("power-indicator").innerHTML = calculateTotalEU() + " EU/t";
+    document.getElementById("time-indicator").innerHTML = simulationTime + " seconds";
     getReactorCode();
 }
 
 function clearGrid(){
-    for(var i=0; i<reactorGrid.length; i++)
+    for(var i=0; i<reactorGrid.length; i++){
         reactorGrid[i].element.className = "panel-cell";
+        reactorGrid[i].element.style.backgroundColor = "#8b8b8b";
+    }
     initialiseGrid();
 }
 
@@ -461,13 +471,13 @@ function initialiseElement(o){
                 
                 // Transfer heat with adjacent components
                 
-                for(var i=0; i<reactorGrid.length; i++){
+                for(var i=0; i<this.heatAcceptors.length; i++){
                     for(var j=0; j < this.adjacentPullRate; j++){
-                        if(heatPercent(reactorGrid[i]) > avgPercentage ){
-                            transferHeat(reactorGrid[i], this, 1);
+                        if(heatPercent(this.heatAcceptors[i]) > avgPercentage ){
+                            transferHeat(this.heatAcceptors[i], this, 1);
                         }
-                        else if(heatPercent(reactorGrid[i]) < avgPercentage){
-                            transferHeat(this, reactorGrid[i],1);
+                        else if(heatPercent(this.heatAcceptors[i]) < avgPercentage){
+                            transferHeat(this, this.heatAcceptors[i],1);
                         }
                         else break;
                     }
