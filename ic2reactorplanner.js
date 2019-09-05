@@ -7,6 +7,7 @@ var indicator = null;
 
 var simulationTime = 0;
 var reactorHullHeat = 0;
+var totalPower = 0;
 var reactorGrid = [];
 
 var currentInterval = null;
@@ -67,7 +68,7 @@ function getReactorCode(){
 }
 
 function loadReactorCode(){
-    var code = document.getElementById("wrcode").value;
+    var code = document.getElementById("wrcode").value.trim();
     if(code.length != 54) return
     _loadReactorCode(code);
 }
@@ -176,6 +177,7 @@ function GridItem(x,y,element){
 function initialiseGrid(){
     reactorHullHeat = 0;
     simulationTime = 0;
+    totalPower = 0;
     
     for(var i=0; i<reactorGrid.length; i++){
         initialiseElement(reactorGrid[i]);
@@ -185,6 +187,7 @@ function initialiseGrid(){
     }
     document.getElementById("heat-indicator").innerHTML = Math.round(reactorHullHeat,5) + " HU (" +Math.round(reactorHullHeat/100,5) + "%)";
     document.getElementById("power-indicator").innerHTML = calculateTotalEU() + " EU/t";
+    document.getElementById("power-total-indicator").innerHTML = "0 EU";
     document.getElementById("time-indicator").innerHTML = simulationTime + " seconds";
     getReactorCode();
 }
@@ -592,18 +595,14 @@ function doReactorTick(){
         updateGrid();
     }
     
-    if(reactorHullHeat >= 10000){
-        if(currentInterval) clearInterval(currentInterval);
-        return;
-    }
+    
+   
     
     // Generate Heat
     
     for (var i=0; i<reactorGrid.length; i++){
         if (reactorGrid[i].isUranium) reactorGrid[i].doHeatGeneration();
     }
-    
-    
     // Pull heat from reactor
     for(var i=0; i<reactorGrid.length; i++){
         if (reactorGrid[i].isVent) reactorGrid[i].pullFromReactor();
@@ -620,10 +619,20 @@ function doReactorTick(){
     }
     
     document.getElementById("heat-indicator").innerHTML = Math.round(reactorHullHeat,5) + " HU (" +Math.round(reactorHullHeat/100,5) + "%)";
-    document.getElementById("power-indicator").innerHTML = calculateTotalEU() + " EU/t";
+    
+    var EUGen = calculateTotalEU();
+    totalPower += EUGen*20;
+    
+    document.getElementById("power-indicator").innerHTML = EUGen + " EU/t";
+    document.getElementById("power-total-indicator").innerHTML = totalPower + "EU";
     simulationTime += 1;
     document.getElementById("time-indicator").innerHTML = simulationTime + " seconds";
     showHeat();
+    
+    if(reactorHullHeat >= 10000 || simulationTime >= 20000){
+        if(currentInterval) clearInterval(currentInterval);
+        return;
+    }
 }
 
 function setGridModifierHandler(element){
