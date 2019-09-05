@@ -454,18 +454,18 @@ function initialiseElement(o){
                         reactorHullHeat++;
                         this.heat--;
                     }
-                    else break;
+                    else break
                 }
                 
                 // Transfer heat with adjacent components
                 
                 for(var i=0; i<reactorGrid.length; i++){
                     for(var j=0; j < this.adjacentPullRate; j++){
-                        if(heatPercent(reactorGrid[j]) > avgPercentage ){
-                            transferHeat(reactorGrid[j], this, 1);
+                        if(heatPercent(reactorGrid[i]) > avgPercentage ){
+                            transferHeat(reactorGrid[i], this, 1);
                         }
-                        else if(heatPercent(reactorGrid[j]) < avgPercentage){
-                            transferHeat(this, reactorGrid[j],1);
+                        else if(heatPercent(reactorGrid[i]) < avgPercentage){
+                            transferHeat(this, reactorGrid[i],1);
                         }
                         else break;
                     }
