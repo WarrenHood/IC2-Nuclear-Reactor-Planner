@@ -222,11 +222,13 @@ function initialiseElement(o){
                 this.heatRate = calculateHU(this.numberOfCells, this.pulseRate);
                 
                 // Check for nearby vents that will dissipate this heat
-                
+                // Removing this as heat vents don't dissipate from cells
+                /*
                 if (this.x > 0 && getReactorComponent(this.x-1,this.y) && getReactorComponent(this.x-1,this.y).name == "heat-vent-component" ) this.heatRate -= 4;
                 if (this.x < 8 && getReactorComponent(this.x+1,this.y) && getReactorComponent(this.x+1,this.y).name == "heat-vent-component" ) this.heatRate -= 4;
                 if (this.y > 0 && getReactorComponent(this.x,this.y-1) && getReactorComponent(this.x,this.y-1).name == "heat-vent-component" ) this.heatRate -= 4;
                 if (this.y < 8 && getReactorComponent(this.x,this.y+1) && getReactorComponent(this.x,this.y+1).name == "heat-vent-component" ) this.heatRate -= 4;
+                */
                 
                 // Clamp Heat Generation rate
                 if(this.heatRate < 0) this.heatRate = 0;
