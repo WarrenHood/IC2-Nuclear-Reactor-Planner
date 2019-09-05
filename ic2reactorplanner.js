@@ -153,7 +153,9 @@ function GridItem(x,y,element){
         o.element.onmouseover = function(e){
             if(mouseIsDown){
                 this.className = currentGridModifier;
-                this.style.backgroundColor = "#8b8b8b";
+                if(currentInterval)
+                    clearInterval(currentInterval);
+                currentInterval = null;
                 initialiseGrid();
             }
         };
@@ -162,7 +164,9 @@ function GridItem(x,y,element){
             e = e || event;
             if(e.button == 0){
                 this.className = currentGridModifier;
-                this.style.backgroundColor = "#8b8b8b";
+                if(currentInterval)
+                    clearInterval(currentInterval);
+                currentInterval = null;
                 initialiseGrid();
             }
         };
@@ -485,6 +489,7 @@ function initialiseElement(o){
 
             }
         }
+        o.element.style.backgroundColor = "#8b8b8b";
 }
 
 function getAverageHeatPercent(hullHeat, heatExchanger, adjComponents){
