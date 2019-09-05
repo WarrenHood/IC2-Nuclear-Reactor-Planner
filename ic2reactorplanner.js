@@ -9,6 +9,7 @@ var simulationTime = 0;
 var reactorHullHeat = 0;
 var totalPower = 0;
 var reactorGrid = [];
+var exploded = false;
 
 var currentInterval = null;
 
@@ -178,6 +179,7 @@ function initialiseGrid(){
     reactorHullHeat = 0;
     simulationTime = 0;
     totalPower = 0;
+    exploded = false;
     
     for(var i=0; i<reactorGrid.length; i++){
         initialiseElement(reactorGrid[i]);
@@ -595,7 +597,7 @@ function doReactorTick(){
         updateGrid();
     }
     
-    
+    if(exploded) return;
    
     
     // Generate Heat
@@ -630,6 +632,7 @@ function doReactorTick(){
     showHeat();
     
     if(reactorHullHeat >= 10000 || simulationTime >= 20000){
+        if(reactorHullHeat >= 10000) exploded = true;
         if(currentInterval) clearInterval(currentInterval);
         return;
     }
