@@ -195,6 +195,10 @@ function initialiseGrid(){
 }
 
 function clearGrid(){
+    if(currentInterval)
+            clearInterval(currentInterval);
+        currentInterval = null;
+    
     for(var i=0; i<reactorGrid.length; i++){
         reactorGrid[i].element.className = "panel-cell";
         reactorGrid[i].element.style.backgroundColor = "#8b8b8b";
